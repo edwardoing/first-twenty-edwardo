@@ -1,6 +1,7 @@
 // Home: tonight's HR work and where the company stands, on one screen (docs/SPEC.md, Home dashboard).
-// Admin: Tonight header, inbox, next threshold, headcount vs plan, this week, hiring pulse, checklists
-// in flight and people cost. Hiring manager: their inbox, their week (interviews they are on), their
+// Admin: the finance-first summary in FinanceHome.tsx (date and one-line answer, KPI strip, Legal exposure
+// and Approvals, then cost and runway, headcount vs plan, hiring, joining and leaving, with the full inbox
+// and This week folded at the bottom). Hiring manager: their inbox, their week (interviews they are on), their
 // jobs' pulse and their team's who's out; no cost, compliance or threshold card. Headcount 1 (the
 // founder, even with a first hire who has not started yet): the First hire kit replaces the cost,
 // onboarding and hiring blocks. Employees land on Me (the App routes them there); this page shows a
@@ -16,7 +17,6 @@ import { useViewer } from '@/app/useViewer'
 import { isInReportingLine } from '@/domain/access'
 import { firstHireKitShown, inboxItems, isSoloWorkspace, tonightHeadline, tonightSummary } from '@/domain/inbox'
 import type { ID, Viewer } from '@/domain/types'
-import { PeopleCostCard } from '@/features/comp'
 import { NextThresholdCard } from '@/features/compliance'
 import { HiringPulse } from '@/features/hiring/interviews'
 import { ChecklistsInFlight } from '@/features/people'
@@ -25,6 +25,7 @@ import { addDays, type ISODate, today } from '@/lib/dates'
 import { plural } from '@/lib/format'
 import { useDB } from '@/store/db'
 import { cx, EmptyState, Icon, PageHeader, Panel } from '@/ui'
+import { FinanceHome } from './FinanceHome'
 import { InboxView } from './Inbox'
 import { FirstHireKitPanel, GrowthPanel, ThisWeekPanel } from './panels'
 
@@ -104,10 +105,12 @@ function InboxPanel({ items, date, viewer }: { items: ReturnType<typeof inboxIte
 
 function AdminHome({ viewer }: { viewer: Viewer }) {
   const { db, date, items, solo, kit, openJobs } = useHomeData(viewer)
+  // Past the first hire: the finance-first summary (legal exposure, people cost, approvals, then detail).
+  if (!kit) return <FinanceHome viewer={viewer} items={items} date={date} />
   const summary = tonightSummary(items)
   const noJobsYet = db.jobs.length === 0
   // Headcount 1 with a first hire on the way: the kit stays, and their pre-start checklist shows too.
-  const incoming = kit && !solo
+  const incoming = !solo
   return (
     <>
       <PageHeader
@@ -126,75 +129,41 @@ function AdminHome({ viewer }: { viewer: Viewer }) {
           ) : undefined
         }
       />
-      {kit ? (
-        <Columns
-          main={
-            <>
-              <Slot order={1}>
-                <FirstHireKitPanel showOpenJob={noJobsYet} />
-              </Slot>
-              <Slot order={2}>
-                <InboxPanel items={items} date={date} viewer={viewer} />
-              </Slot>
-              <Slot order={4}>
-                <GrowthPanel solo />
-              </Slot>
-            </>
-          }
-          side={
-            <>
-              <Slot order={3}>
-                <NextThresholdCard />
-              </Slot>
-              {incoming && (
-                <Slot order={5}>
-                  <ChecklistsInFlight />
-                </Slot>
-              )}
-              {openJobs > 0 && (
-                <Slot order={6}>
-                  <PulsePanel />
-                </Slot>
-              )}
-              <Slot order={7}>
-                <ThisWeekPanel viewer={viewer} />
-              </Slot>
-            </>
-          }
-        />
-      ) : (
-        <Columns
-          main={
-            <>
-              <Slot order={1}>
-                <InboxPanel items={items} date={date} viewer={viewer} />
-              </Slot>
-              <Slot order={3}>
-                <GrowthPanel />
-              </Slot>
-              <Slot order={4}>
-                <ThisWeekPanel viewer={viewer} />
-              </Slot>
-            </>
-          }
-          side={
-            <>
-              <Slot order={2}>
-                <NextThresholdCard />
-              </Slot>
+      <Columns
+        main={
+          <>
+            <Slot order={1}>
+              <FirstHireKitPanel showOpenJob={noJobsYet} />
+            </Slot>
+            <Slot order={2}>
+              <InboxPanel items={items} date={date} viewer={viewer} />
+            </Slot>
+            <Slot order={4}>
+              <GrowthPanel solo />
+            </Slot>
+          </>
+        }
+        side={
+          <>
+            <Slot order={3}>
+              <NextThresholdCard />
+            </Slot>
+            {incoming && (
               <Slot order={5}>
-                <PulsePanel />
-              </Slot>
-              <Slot order={6}>
                 <ChecklistsInFlight />
               </Slot>
-              <Slot order={7}>
-                <PeopleCostCard />
+            )}
+            {openJobs > 0 && (
+              <Slot order={6}>
+                <PulsePanel />
               </Slot>
-            </>
-          }
-        />
-      )}
+            )}
+            <Slot order={7}>
+              <ThisWeekPanel viewer={viewer} />
+            </Slot>
+          </>
+        }
+      />
     </>
   )
 }
