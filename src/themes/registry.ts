@@ -2,6 +2,7 @@
 // Each look's stylesheet is src/themes/<id>.css (imported by src/styles.css); its optional React
 // decorations are src/themes/<id>/decor.tsx, registered here.
 import type { ComponentType } from 'react'
+import { decor as citypopDecor } from './citypop/decor'
 import { decor as comicDecor } from './comic/decor'
 import { type LookId, LOOK_IDS } from './ids'
 import { decor as sleekDecor } from './sleek/decor'
@@ -68,6 +69,13 @@ export const LOOKS: Record<LookId, LookInfo> = {
     blurb: 'A dark trading terminal: amber labels, dense figures and a ticker tape.',
     supportsDark: false,
     decor: tradingDecor,
+  },
+  citypop: {
+    id: 'citypop',
+    name: 'City pop',
+    blurb: 'A pixel city at sunset: pastel sky, plum ink and arcade score boxes.',
+    supportsDark: false,
+    decor: citypopDecor,
   },
 }
 

@@ -1,0 +1,1125 @@
+/*
+  Look: City pop. Fixed palette (never follows the OS dark setting or data-theme).
+  A 16-bit city pop game at golden hour: peach paper, plum ink, a pixel skyline with a striped sun over
+  the page (decor in citypop/decor.tsx) and an arcade score counter in the rail. Everything is drawn
+  as pixel frames: square corners, 2-3px ink borders and hard offset shadows with no blur. Pixelify
+  Sans sets headings and big figures only; reading text stays in Geist, ids and keys in IBM Plex Mono.
+
+  Roles: magenta (--accent) is action and place (the primary button, the current nav item and tab,
+  links, the chosen value); violet is the focus ring only; good, warn and bad keep their words. Depth:
+  a hard offset shadow means "this stands up off the page": buttons, panels, stats, menus, dialogs,
+  sheets and toasts. Fields, badges, callouts and table rows lie flat.
+
+  Every selector is scoped to [data-look="citypop"] (docs/LOOKS.md): the page's <html> carries it, and
+  so does this look's preview card in the Display menu. Selectors never put a comma inside :is() or
+  :not() (the contract test splits selector lists on commas).
+
+  Preview guard: the Display menu shows every look's card inside this page, and CSS has no "nearest
+  data-look wins". So every rule for a hook that a preview card renders (panel, badge, button, table)
+  ends in :not(.ft-lookpreview:not([data-look="citypop"]) *). It keeps these rules out of the other
+  looks' cards, and its extra specificity keeps this card right when another look is the page's look.
+  Add it to any new rule for those hooks.
+
+  Contrast (computed, 4.5:1 or better): --ink #2a1b3d 11:1 or more, --ink-2 #47375b 7.4:1 or more and
+  --ink-3 #5e4c70 5.3:1 or more on --paper #fdeee2, --surface #fffaf4, --surface-2 #fbe4d5 and
+  --surface-3 #f4d0c0. --accent #b8235a 5:1 on paper, surface and surface-2 (accent words never sit
+  on surface-3), white on it 6.1:1 (8.3:1 on hover). Soft fills: #871a43 on #ffe1ec 7.6:1, good 5.4:1,
+  warn 6.1:1, bad 5.6:1. The focus violet is 5.1:1 or more on every ground; control borders 3.2:1 on
+  surface-3 and 4:1 on paper.
+*/
+
+[data-look="citypop"] {
+  /* Color */
+  --paper: #fdeee2;
+  --surface: #fffaf4;
+  --surface-2: #fbe4d5;
+  --surface-3: #f4d0c0;
+  --ink: #2a1b3d;
+  --ink-2: #47375b;
+  --ink-3: #5e4c70;
+  /* Rules between rows (decorative) and the stronger rule for secondary frames. */
+  --line: #e6c3b5;
+  --line-strong: #a88497;
+  --control-border: #8a6c90;
+  --accent: #b8235a;
+  --accent-hover: #951c49;
+  --accent-ink: #ffffff;
+  --accent-soft: #ffe1ec;
+  --accent-soft-ink: #871a43;
+  --good: #1d6b4f;
+  --good-soft: #d9f2e6;
+  --warn: #8a4300;
+  --warn-soft: #ffe8cc;
+  --bad: #a8231c;
+  --bad-soft: #ffdcd6;
+  --focus: #5a3dc0;
+  --scrim: rgb(42 27 61 / 0.42);
+  /* Neon signs at dusk. Order checked with the dataviz validator on #fffaf4 and #fdeee2 (lightness,
+     chroma, adjacent CVD and normal-vision separation, 3:1 contrast: all PASS). The teal is #1098ad
+     (the deeper #0b7285 reads gray), and blue sits after orange so it never neighbors the violet. */
+  --cat-1: #c2255c;
+  --cat-2: #1098ad;
+  --cat-3: #6741d9;
+  --cat-4: #d9480f;
+  --cat-5: #1971c2;
+  --cat-6: #2b8a3e;
+  color-scheme: light;
+
+  /* Type: pixel headings and figures, a clean grotesk for reading. */
+  --font-display: "Pixelify Sans", "Geist Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Geist Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  --font-size-base: 15px;
+  --line-height-base: 1.5;
+  --heading-weight: 700;
+  --heading-transform: none;
+  --heading-tracking: 0.01em;
+  --eyebrow-transform: uppercase;
+  --eyebrow-tracking: 0.08em;
+
+  /* Shape and depth: square corners everywhere, hard offset shadows in ink, never a blur. */
+  --r-sm: 0px;
+  --r-md: 0px;
+  --r-lg: 0px;
+  --r-xl: 0px;
+  --r-2xl: 0px;
+  --r-pill: 0px;
+  --border-w: 1px;
+  --border-w-strong: 3px;
+  --shadow-sm: 2px 2px 0 var(--ink);
+  --shadow: 4px 4px 0 var(--ink);
+  --shadow-lg: 6px 6px 0 var(--ink);
+  --focus-width: 3px;
+  --focus-style: solid;
+  --focus-offset: 2px;
+
+  /* Look-private helpers. */
+  --cp-frame: 2px solid var(--ink);
+  --cp-frame-strong: 3px solid var(--ink);
+  /* Sunset bands (the skyline and the active tab's stripe). */
+  --cp-sky-1: #b9a4e6;
+  --cp-sky-2: #f3a6c8;
+  --cp-sky-3: #ffbe9c;
+  --cp-sky-4: #ffdca8;
+  --cp-plum: #4b2d63;
+  --cp-window: #ffd98a;
+  /* A faint pixel grid on the page: one #f8e3d4 pixel every 8px (ink-3 keeps 6.3:1 on it). */
+  --cp-grid: conic-gradient(from 270deg at 2px 2px, #f8e3d4 25%, transparent 0);
+}
+
+/* ---------------------------------------------------------------------------------------------
+   Page: peach paper with a faint pixel grid, pixel-crisp text selection.
+   --------------------------------------------------------------------------------------------- */
+
+/* One 2px square pixel in the top left of every 8px cell. */
+[data-look="citypop"] body,
+.ft-lookpreview[data-look="citypop"] {
+  background-color: var(--paper);
+  background-image: var(--cp-grid);
+  background-size: 8px 8px;
+  background-repeat: repeat;
+}
+
+[data-look="citypop"] ::selection {
+  background: var(--accent-soft);
+  color: var(--accent-soft-ink);
+}
+
+[data-look="citypop"] .eyebrow {
+  font-weight: 700;
+  color: var(--ink-2);
+}
+
+[data-look="citypop"] hr {
+  height: 0;
+  border: 0;
+  border-top: 2px solid var(--ink);
+}
+
+/* Square corners everywhere, also where a screen rounds through a variant utility (before:rounded-full,
+   rounded-t-[3px]) that the token remap cannot reach. Other looks' preview cards and the one native
+   radio group keep their own shapes. */
+[data-look="citypop"] body *:not(.ft-lookpreview):not(.ft-lookpreview *):not(input[type="radio"]),
+[data-look="citypop"] body *:not(.ft-lookpreview *)::before,
+[data-look="citypop"] body *:not(.ft-lookpreview *)::after {
+  border-radius: 0;
+}
+
+/* Square scroll bars: a plum thumb on the paper, no arrow buttons. */
+[data-look="citypop"],
+[data-look="citypop"] .scroll-thin {
+  scrollbar-color: var(--line-strong) transparent;
+}
+
+/* ---------------------------------------------------------------------------------------------
+   Links: magenta with a solid underline; hover darkens and thickens it.
+   --------------------------------------------------------------------------------------------- */
+
+[data-look="citypop"] .ft-link {
+  color: var(--accent);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+[data-look="citypop"] .ft-link:hover {
+  color: var(--accent-hover);
+  text-decoration-thickness: 3px;
+}
+
+/* ---------------------------------------------------------------------------------------------
+   Buttons: pixel blocks. A 2px ink frame and a 3px hard shadow; pressing drops the block onto its
+   shadow. Primary is the magenta fill, secondary the cream face, ghost a frameless word until pointed at.
+   --------------------------------------------------------------------------------------------- */
+
+[data-look="citypop"] .ft-btn:not(.ft-lookpreview:not([data-look="citypop"]) *) {
+  border: var(--cp-frame);
+  border-radius: 0;
+  box-shadow: 3px 3px 0 var(--ink);
+  font-weight: 650;
+  transition: none;
+}
+
+[data-look="citypop"] .ft-btn:active:not(:disabled):not(.ft-lookpreview:not([data-look="citypop"]) *) {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--ink);
+}
+
+[data-look="citypop"] .ft-btn.ft-btn--primary:not(.ft-lookpreview:not([data-look="citypop"]) *) {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+[data-look="citypop"] .ft-btn.ft-btn--primary:hover:not(:disabled):not(.ft-lookpreview:not([data-look="citypop"]) *) {
+  background: var(--accent-hover);
+}
+
+[data-look="citypop"] .ft-btn.ft-btn--secondary:not(.ft-lookpreview:not([data-look="citypop"]) *) {
+  background: var(--surface);
+  color: var(--ink);
+}
+
+[data-look="citypop"] .ft-btn.ft-btn--secondary:hover:not(:disabled):not(.ft-lookpreview:not([data-look="citypop"]) *) {
+  background: var(--accent-soft);
+  color: var(--accent-soft-ink);
+}
+
+[data-look="citypop"] .ft-btn.ft-btn--danger:not(.ft-lookpreview:not([data-look="citypop"]) *) {
+  background: var(--bad);
+  color: #ffffff;
+}
+
+[data-look="citypop"] .ft-btn.ft-btn--danger:hover:not(:disabled):not(.ft-lookpreview:not([data-look="citypop"]) *) {
+  background: #861b16;
+}
+
+/* Secondary in the bad tone (SOC 2 fix actions). */
+[data-look="citypop"] .ft-btn.ft-btn--urgent:not(.ft-lookpreview:not([data-look="citypop"]) *) {
+  color: var(--bad);
+  background: var(--bad-soft);
+}
+
+[data-look="citypop"] .ft-btn.ft-btn--ghost:not(.ft-lookpreview:not([data-look="citypop"]) *),
+[data-look="citypop"] .ft-btn.ft-btn--quiet:not(.ft-lookpreview:not([data-look="citypop"]) *) {
+  background: transparent;
+  color: var(--ink);
+  border-color: transparent;
+  box-shadow: none;
+}
+
+[data-look="citypop"] .ft-btn.ft-btn--ghost:hover:not(:disabled):not(.ft-lookpreview:not([data-look="citypop"]) *) {
+  background: var(--surface-2);
+  border-color: var(--ink);
+}
+
+[data-look="citypop"] .ft-btn.ft-btn--ghost:active:not(:disabled):not(.ft-lookpreview:not([data-look="citypop"]) *),
+[data-look="citypop"] .ft-btn.ft-btn--quiet:active:not(:disabled):not(.ft-lookpreview:not([data-look="citypop"]) *) {
+  transform: none;
+  box-shadow: none;
+  background: var(--surface-3);
+}
+
+[data-look="citypop"] .ft-btn.ft-btn--quiet:not(.ft-lookpreview:not([data-look="citypop"]) *) {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+[data-look="citypop"] .ft-btn.ft-btn--quiet:hover:not(:disabled):not(.ft-lookpreview:not([data-look="citypop"]) *) {
+  color: var(--accent);
+}
+
+/* Disabled: a dashed frame, no shadow, ink-3 words (no fade, so the words keep 5:1). */
+[data-look="citypop"] .ft-btn:disabled:not(.ft-lookpreview:not([data-look="citypop"]) *) {
+  background: var(--surface-2);
+  color: var(--ink-3);
+  border-style: dashed;
+  border-color: var(--line-strong);
+  box-shadow: none;
+  opacity: 1;
+}
+
+[data-look="citypop"] .ft-btn.ft-btn--ghost:disabled:not(.ft-lookpreview:not([data-look="citypop"]) *) {
+  background: transparent;
+  border-color: transparent;
+}
+
+/* Focus on a filled block: ink, so the ring never melts into the magenta or red. */
+[data-look="citypop"] .ft-btn.ft-btn--primary:focus-visible:not(.ft-lookpreview:not([data-look="citypop"]) *),
+[data-look="citypop"] .ft-btn.ft-btn--danger:focus-visible:not(.ft-lookpreview:not([data-look="citypop"]) *) {
+  outline-color: var(--ink);
+}
+
+/* Icon buttons: frameless until pointed at, then a pixel tile. */
+[data-look="citypop"] .ft-iconbtn {
+  border-radius: 0;
+  transition: none;
+}
+
+[data-look="citypop"] .ft-iconbtn:hover {
+  background: var(--surface-2);
+  color: var(--ink);
+  box-shadow: inset 0 0 0 2px var(--ink);
+}
+
+[data-look="citypop"] .ft-iconbtn.ft-iconbtn--on {
+  background: var(--accent-soft);
+  color: var(--accent-soft-ink);
+  box-shadow: inset 0 0 0 2px var(--accent-soft-ink);
+}
+
+/* ---------------------------------------------------------------------------------------------
+   Badges: flat square tags, a 2px frame in the tone's own ink on its soft fill. Status keeps its word.
+   --------------------------------------------------------------------------------------------- */
+
+[data-look="citypop"] .ft-badge:not(.ft-lookpreview:not([data-look="citypop"]) *) {
+  border: 2px solid currentColor;
+  border-radius: 0;
+  box-shadow: none;
+  font-weight: 700;
+}
+
+[data-look="citypop"] .ft-badge--neutral:not(.ft-lookpreview:not([data-look="citypop"]) *) {
+  background: var(--surface-2);
+  color: var(--ink-2);
+}
+
+[data-look="citypop"] .ft-badge--accent:not(.ft-lookpreview:not([data-look="citypop"]) *) {
+  background: var(--accent-soft);
+  color: var(--accent-soft-ink);
+}
+
+[data-look="citypop"] .ft-badge--good:not(.ft-lookpreview:not([data-look="citypop"]) *) {
+  background: var(--good-soft);
+  color: var(--good);
+}
+
+[data-look="citypop"] .ft-badge--warn:not(.ft-lookpreview:not([data-look="citypop"]) *) {
+  background: var(--warn-soft);
+  color: var(--warn);
+}
+
+[data-look="citypop"] .ft-badge--bad:not(.ft-lookpreview:not([data-look="citypop"]) *) {
+  background: var(--bad-soft);
+  color: var(--bad);
+}
+
+[data-look="citypop"] .ft-badge--outline:not(.ft-lookpreview:not([data-look="citypop"]) *) {
+  background: transparent;
+  color: var(--ink-2);
+  border-style: dashed;
+}
+
+[data-look="citypop"] .ft-dot,
+[data-look="citypop"] .ft-avatar {
+  border-radius: 0;
+}
+
+[data-look="citypop"] .ft-avatar {
+  box-shadow: inset 0 0 0 2px var(--ink);
+}
+
+[data-look="citypop"] .ft-avatarstack > :not(.ft-avatar) {
+  box-shadow: none;
+}
+
+[data-look="citypop"] .ft-kbd {
+  border: 2px solid var(--ink);
+  border-radius: 0;
+  background: var(--surface);
+  box-shadow: 0 2px 0 var(--ink);
+  color: var(--ink-2);
+  font-family: var(--font-mono);
+}
+
+[data-look="citypop"] .ft-count {
+  border-radius: 0;
+}
+
+/* ---------------------------------------------------------------------------------------------
+   Page header: a pixel title over a 3px ink rule with a magenta stripe under it.
+   --------------------------------------------------------------------------------------------- */
+
+[data-look="citypop"] .ft-pagehead,
+[data-look="citypop"] .ft-personhead {
+  border-bottom: 3px solid var(--ink);
+  box-shadow: 0 4px 0 var(--accent);
+  margin-bottom: 1.5rem;
+}
+
+[data-look="citypop"] .ft-pagehead__title {
+  color: var(--ink);
+  text-shadow: 2px 2px 0 var(--cp-sky-2);
+}
+
+[data-look="citypop"] .ft-pagehead__eyebrow {
+  color: var(--accent);
+}
+
+[data-look="citypop"] .ft-pagehead__subtitle {
+  color: var(--ink-2);
+}
+
+[data-look="citypop"] .ft-pagehead__back {
+  color: var(--ink-2);
+}
+
+[data-look="citypop"] .ft-pagehead__back:hover {
+  color: var(--accent);
+}
+
+/* ---------------------------------------------------------------------------------------------
+   Panels: a game window. 3px ink frame, a 4px hard shadow, a peach title bar ruled off in ink.
+   --------------------------------------------------------------------------------------------- */
+
+[data-look="citypop"] .ft-panel:not(.ft-lookpreview:not([data-look="citypop"]) *) {
+  background: var(--surface);
+  border: var(--cp-frame-strong);
+  border-radius: 0;
+  box-shadow: 4px 4px 0 var(--ink);
+}
+
+[data-look="citypop"] .ft-panel__head:not(.ft-lookpreview:not([data-look="citypop"]) *) {
+  background: var(--surface-2);
+  border-bottom: 2px solid var(--ink);
+}
+
+[data-look="citypop"] .ft-panel__title:not(.ft-lookpreview:not([data-look="citypop"]) *) {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--ink);
+}
+
+[data-look="citypop"] .ft-panel__subtitle:not(.ft-lookpreview:not([data-look="citypop"]) *) {
+  color: var(--ink-2);
+}
+
+[data-look="citypop"] .ft-panel__icon:not(.ft-lookpreview:not([data-look="citypop"]) *) {
+  color: var(--accent);
+}
+
+[data-look="citypop"] .ft-subpanel {
+  border-radius: 0;
+  border-color: var(--ink);
+}
+
+[data-look="citypop"] .ft-subpanel__title {
+  font-family: var(--font-display);
+}
+
+[data-look="citypop"] .ft-sectionlabel {
+  color: var(--ink-2);
+  font-weight: 700;
+}
+
+[data-look="citypop"] .ft-sectionlabel::after {
+  background: var(--ink);
+  height: 2px;
+}
+
+[data-look="citypop"] .ft-dl__term {
+  color: var(--ink-2);
+}
+
+[data-look="citypop"] .ft-empty__title {
+  font-family: var(--font-display);
+}
+
+[data-look="citypop"] .ft-empty__icon {
+  color: var(--accent);
+}
+
+/* Hand-built cards drawn with the card shadow (stat strips, tiles): the shadow is ink, so their
+   frame turns ink too and they read as the same pixel window as a Panel. */
+[data-look="citypop"] .shadow-card.border:not([class*="ft-"]) {
+  border-color: var(--ink);
+  border-width: 2px;
+}
+
+/* ---------------------------------------------------------------------------------------------
+   Stats and meters: score boxes. Pixel figures in a framed tile; meters are square bars in a frame.
+   --------------------------------------------------------------------------------------------- */
+
+[data-look="citypop"] .ft-stat {
+  background: var(--surface);
+  border: var(--cp-frame-strong);
+  border-radius: 0;
+  box-shadow: 4px 4px 0 var(--ink);
+}
+
+[data-look="citypop"] a.ft-stat:hover {
+  background: var(--accent-soft);
+}
+
+[data-look="citypop"] .ft-stat__label {
+  color: var(--ink-2);
+  font-weight: 700;
+}
+
+[data-look="citypop"] .ft-stat__value {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+[data-look="citypop"] .ft-stat__sub {
+  color: var(--ink-3);
+}
+
+[data-look="citypop"] .ft-ministat__value.text-\[20px\],
+[data-look="citypop"] .ft-ministat--tile .ft-ministat__value {
+  font-family: var(--font-display);
+}
+
+[data-look="citypop"] .ft-meter {
+  border-radius: 0;
+  background: var(--surface-3);
+  box-shadow: 0 0 0 2px var(--ink);
+}
+
+[data-look="citypop"] .ft-meter__bar {
+  border-radius: 0;
+}
+
+/* ---------------------------------------------------------------------------------------------
+   Callouts and banners: flat notice boxes, a 2px frame in the tone's ink and a 6px tone bar.
+   --------------------------------------------------------------------------------------------- */
+
+[data-look="citypop"] .ft-callout {
+  border: 2px solid var(--ink);
+  border-radius: 0;
+  box-shadow: inset 6px 0 0 var(--ink);
+  padding-left: 1.375rem;
+}
+
+[data-look="citypop"] .ft-callout--accent {
+  border-color: var(--accent-soft-ink);
+  box-shadow: inset 6px 0 0 var(--accent);
+}
+
+[data-look="citypop"] .ft-callout--good {
+  border-color: var(--good);
+  box-shadow: inset 6px 0 0 var(--good);
+}
+
+[data-look="citypop"] .ft-callout--warn {
+  border-color: var(--warn);
+  box-shadow: inset 6px 0 0 var(--warn);
+}
+
+[data-look="citypop"] .ft-callout--bad {
+  border-color: var(--bad);
+  box-shadow: inset 6px 0 0 var(--bad);
+}
+
+[data-look="citypop"] .ft-callout__title {
+  color: var(--ink);
+}
+
+[data-look="citypop"] .ft-banner {
+  border: 2px solid var(--ink);
+  border-radius: 0;
+  box-shadow: 3px 3px 0 var(--ink);
+}
+
+[data-look="citypop"] .ft-banner--storage,
+[data-look="citypop"] .ft-banner--sync-rejected,
+[data-look="citypop"] .ft-banner--sync-paused {
+  background: var(--warn-soft);
+}
+
+/* ---------------------------------------------------------------------------------------------
+   Form controls: flat cream fields in a 2px plum frame; the frame turns ink on hover and magenta while
+   typing. Check boxes and switches are square.
+   --------------------------------------------------------------------------------------------- */
+
+[data-look="citypop"] .ft-input,
+[data-look="citypop"] .ft-select,
+[data-look="citypop"] .ft-textarea,
+[data-look="citypop"] .ft-search {
+  background-color: var(--surface);
+  border: 2px solid var(--control-border);
+  border-radius: 0;
+  box-shadow: inset 2px 2px 0 var(--surface-3);
+  transition: none;
+}
+
+[data-look="citypop"] .ft-input:hover,
+[data-look="citypop"] .ft-select:hover,
+[data-look="citypop"] .ft-textarea:hover,
+[data-look="citypop"] .ft-search:hover {
+  border-color: var(--ink);
+}
+
+[data-look="citypop"] .ft-input:focus,
+[data-look="citypop"] .ft-select:focus,
+[data-look="citypop"] .ft-textarea:focus {
+  border-color: var(--accent);
+  box-shadow: inset 2px 2px 0 var(--accent-soft);
+}
+
+[data-look="citypop"] .ft-input[aria-invalid="true"],
+[data-look="citypop"] .ft-select[aria-invalid="true"],
+[data-look="citypop"] .ft-textarea[aria-invalid="true"] {
+  border-color: var(--bad);
+}
+
+[data-look="citypop"] .ft-input:disabled,
+[data-look="citypop"] .ft-select:disabled,
+[data-look="citypop"] .ft-textarea:disabled {
+  background-color: var(--surface-2);
+  border-style: dashed;
+  color: var(--ink-3);
+}
+
+[data-look="citypop"] .ft-field__label {
+  color: var(--ink);
+  font-weight: 650;
+}
+
+[data-look="citypop"] .ft-field__hint {
+  color: var(--ink-3);
+}
+
+[data-look="citypop"] .ft-field__error {
+  color: var(--bad);
+}
+
+[data-look="citypop"] .ft-checkbox {
+  accent-color: var(--accent);
+}
+
+[data-look="citypop"] .ft-switch__track {
+  border-radius: 0;
+  box-shadow: inset 0 0 0 2px var(--ink);
+}
+
+[data-look="citypop"] .ft-switch__thumb {
+  border-radius: 0;
+  box-shadow: 0 0 0 2px var(--ink);
+}
+
+/* Segmented strips and chips: pixel keys. Off is the cream face in a plum frame, on the magenta fill. */
+[data-look="citypop"] .ft-segmented {
+  border-radius: 0;
+  background: var(--surface-2);
+  box-shadow: inset 0 0 0 2px var(--ink);
+}
+
+[data-look="citypop"] .ft-segmented__item {
+  border-radius: 0;
+  transition: none;
+}
+
+[data-look="citypop"] .ft-segmented__item:hover {
+  background: var(--surface-3);
+  color: var(--ink);
+}
+
+[data-look="citypop"] .ft-segmented__item.ft-segmented__item--on,
+[data-look="citypop"] .ft-segmented__item.ft-segmented__item--on:hover {
+  background: var(--accent);
+  color: var(--accent-ink);
+  box-shadow: inset 0 0 0 2px var(--ink);
+}
+
+[data-look="citypop"] .ft-chip {
+  background: var(--surface);
+  color: var(--ink);
+  border: 2px solid var(--control-border);
+  border-radius: 0;
+  box-shadow: none;
+  transition: none;
+}
+
+[data-look="citypop"] .ft-chip:hover {
+  border-color: var(--ink);
+  background: var(--surface-2);
+}
+
+[data-look="citypop"] .ft-chip.ft-chip--on,
+[data-look="citypop"] .ft-chip.ft-chip--on:hover {
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-color: var(--ink);
+  box-shadow: 2px 2px 0 var(--ink);
+}
+
+/* A multi chip that is on keeps the cream face with an ink frame and a magenta check (a row of filters
+   that are all on by default stays quieter than the page). */
+[data-look="citypop"] .ft-chip.ft-chip--multi.ft-chip--on,
+[data-look="citypop"] .ft-chip.ft-chip--multi.ft-chip--on:hover {
+  background: var(--accent-soft);
+  color: var(--accent-soft-ink);
+  box-shadow: none;
+}
+
+[data-look="citypop"] .ft-chip.ft-chip--on:focus-visible {
+  outline-color: var(--ink);
+}
+
+[data-look="citypop"] .ft-cite,
+[data-look="citypop"] .ft-tag {
+  border-radius: 0;
+}
+
+/* ---------------------------------------------------------------------------------------------
+   Tabs: a level select. A 2px ink rule under the strip; the current tab is bold ink over a 4px
+   magenta bar.
+   --------------------------------------------------------------------------------------------- */
+
+[data-look="citypop"] .ft-tabs {
+  border-bottom: 2px solid var(--ink);
+}
+
+[data-look="citypop"] .ft-tab {
+  transition: none;
+}
+
+[data-look="citypop"] .ft-tab:hover {
+  background: var(--surface-2);
+}
+
+[data-look="citypop"] .ft-tab.ft-tab--active {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+[data-look="citypop"] .ft-tab__indicator {
+  height: 4px;
+  border-radius: 0;
+  background: var(--accent);
+}
+
+[data-look="citypop"] .ft-tab__count {
+  border-radius: 0;
+}
+
+/* ---------------------------------------------------------------------------------------------
+   Tables: a high score table. Peach head row on a 2px ink rule, rows on a light rule.
+   --------------------------------------------------------------------------------------------- */
+
+[data-look="citypop"] .ft-table__headrow:not(.ft-lookpreview:not([data-look="citypop"]) *) {
+  border-bottom: 2px solid var(--ink);
+}
+
+[data-look="citypop"] .ft-table__th:not(.ft-lookpreview:not([data-look="citypop"]) *) {
+  background: var(--surface-2);
+  color: var(--ink-2);
+  font-weight: 700;
+}
+
+[data-look="citypop"] .ft-table__sort:hover:not(.ft-lookpreview:not([data-look="citypop"]) *),
+[data-look="citypop"] .ft-table__sort--active:not(.ft-lookpreview:not([data-look="citypop"]) *) {
+  color: var(--ink);
+}
+
+[data-look="citypop"] .ft-table__row:not(.ft-lookpreview:not([data-look="citypop"]) *) {
+  border-color: var(--line);
+}
+
+[data-look="citypop"] .ft-table__row--link:hover:not(.ft-lookpreview:not([data-look="citypop"]) *) {
+  background: var(--accent-soft);
+}
+
+[data-look="citypop"] .ft-table__rowlink:hover:not(.ft-lookpreview:not([data-look="citypop"]) *) {
+  color: var(--accent-soft-ink);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+/* ---------------------------------------------------------------------------------------------
+   Overlays: sheets, dialogs and menus are game windows (3px ink frame, a 6px hard shadow, a peach
+   title bar); the scrim is a plum dusk.
+   --------------------------------------------------------------------------------------------- */
+
+[data-look="citypop"] .ft-sheet {
+  border-left: var(--cp-frame-strong);
+  box-shadow: -6px 0 0 var(--ink);
+}
+
+[data-look="citypop"] .ft-modal,
+[data-look="citypop"] .ft-menu,
+[data-look="citypop"] .ft-palette {
+  border: var(--cp-frame-strong);
+  border-radius: 0;
+  box-shadow: 6px 6px 0 var(--ink);
+}
+
+[data-look="citypop"] .ft-sheet__head,
+[data-look="citypop"] .ft-modal__head {
+  background: var(--surface-2);
+  border-bottom: 2px solid var(--ink);
+}
+
+/* The dialog's head has no rule of its own in the kit; give its body room under the new rule. */
+[data-look="citypop"] .ft-modal__head {
+  padding-bottom: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+[data-look="citypop"] .ft-sheet__foot,
+[data-look="citypop"] .ft-modal__foot {
+  border-top: 2px solid var(--ink);
+  background: var(--surface-2);
+}
+
+[data-look="citypop"] .ft-sheet__title,
+[data-look="citypop"] .ft-modal__title {
+  font-family: var(--font-display);
+  font-weight: 700;
+}
+
+[data-look="citypop"] .ft-sheet__subtitle {
+  color: var(--ink-2);
+}
+
+[data-look="citypop"] .ft-menuitem {
+  border-radius: 0;
+}
+
+[data-look="citypop"] .ft-menuitem:hover,
+[data-look="citypop"] .ft-menuitem:focus-visible {
+  background: var(--accent-soft);
+  color: var(--accent-soft-ink);
+}
+
+[data-look="citypop"] .ft-menuitem.ft-menuitem--danger {
+  color: var(--bad);
+}
+
+[data-look="citypop"] .ft-menuitem.ft-menuitem--danger:hover {
+  background: var(--bad-soft);
+  color: var(--bad);
+}
+
+[data-look="citypop"] .ft-menu__divider {
+  background: var(--ink);
+  height: 2px;
+}
+
+[data-look="citypop"] .ft-palette__item--active {
+  background: var(--accent-soft);
+  color: var(--accent-soft-ink);
+  box-shadow: inset 4px 0 0 var(--accent);
+}
+
+/* ---------------------------------------------------------------------------------------------
+   Toasts: a dialogue box, cream in an ink frame with a hard shadow and a 6px tone bar on the left.
+   --------------------------------------------------------------------------------------------- */
+
+[data-look="citypop"] .ft-toast {
+  background: var(--surface);
+  border: var(--cp-frame-strong);
+  border-radius: 0;
+  box-shadow: inset 6px 0 0 var(--ink-3), 4px 4px 0 var(--ink);
+}
+
+[data-look="citypop"] .ft-toast.ft-toast--good {
+  box-shadow: inset 6px 0 0 var(--good), 4px 4px 0 var(--ink);
+}
+
+[data-look="citypop"] .ft-toast.ft-toast--bad {
+  box-shadow: inset 6px 0 0 var(--bad), 4px 4px 0 var(--ink);
+}
+
+[data-look="citypop"] .ft-toast__link,
+[data-look="citypop"] .ft-toast .ft-link {
+  color: var(--accent);
+}
+
+[data-look="citypop"] .ft-toast__action {
+  border-radius: 0;
+  box-shadow: inset 0 0 0 2px var(--ink);
+}
+
+[data-look="citypop"] .ft-toast__action:hover {
+  background: var(--accent-soft);
+  color: var(--accent-soft-ink);
+}
+
+/* ---------------------------------------------------------------------------------------------
+   Shell: the rail is a plum-ruled side bar; the current page is a magenta-soft tile with a 6px bar.
+   --------------------------------------------------------------------------------------------- */
+
+[data-look="citypop"] .ft-rail {
+  border-right: 3px solid var(--ink);
+}
+
+[data-look="citypop"] .ft-brand__mark {
+  border-radius: 0;
+  box-shadow: 2px 2px 0 var(--ink);
+}
+
+[data-look="citypop"] .ft-brand__name {
+  font-family: var(--font-display);
+  font-weight: 700;
+}
+
+[data-look="citypop"] .ft-brand__meta,
+[data-look="citypop"] .ft-rail__note {
+  color: var(--ink-2);
+}
+
+[data-look="citypop"] .ft-headcount {
+  border-radius: 0;
+  background: var(--surface);
+  box-shadow: inset 0 0 0 2px var(--ink);
+}
+
+[data-look="citypop"] a.ft-headcount:hover {
+  background: var(--accent-soft);
+}
+
+[data-look="citypop"] .ft-headcount__value {
+  font-family: var(--font-display);
+}
+
+[data-look="citypop"] .ft-headcount__label {
+  color: var(--ink-2);
+}
+
+[data-look="citypop"] .ft-navitem {
+  border-radius: 0;
+  color: var(--ink-2);
+  transition: none;
+}
+
+[data-look="citypop"] .ft-navitem:hover {
+  background: var(--surface-2);
+  color: var(--ink);
+  box-shadow: inset 6px 0 0 var(--line-strong);
+}
+
+[data-look="citypop"] .ft-navitem.ft-navitem--active,
+[data-look="citypop"] .ft-navitem.ft-navitem--active:hover {
+  background: var(--accent-soft);
+  color: var(--accent-soft-ink);
+  font-weight: 700;
+  box-shadow: inset 6px 0 0 var(--accent), inset 0 0 0 2px var(--accent-soft-ink);
+}
+
+[data-look="citypop"] .ft-navitem__icon {
+  color: currentColor;
+}
+
+[data-look="citypop"] .ft-viewas {
+  border-radius: 0;
+  background: var(--surface);
+  box-shadow: inset 0 0 0 2px var(--ink);
+}
+
+[data-look="citypop"] .ft-viewas__title {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+[data-look="citypop"] .ft-topbar {
+  background: var(--surface-2);
+  border-bottom: 3px solid var(--ink);
+}
+
+[data-look="citypop"] .ft-topbar__count {
+  color: var(--ink);
+}
+
+[data-look="citypop"] .ft-backup,
+[data-look="citypop"] .ft-syncchip {
+  border-radius: 0;
+  border: 2px solid var(--ink);
+  background: var(--surface);
+  box-shadow: none;
+}
+
+[data-look="citypop"] .ft-backup.ft-backup--stale,
+[data-look="citypop"] .ft-syncchip.ft-syncchip--offline,
+[data-look="citypop"] .ft-syncchip.ft-syncchip--signed-out {
+  background: var(--warn-soft);
+  color: var(--warn);
+}
+
+[data-look="citypop"] .ft-syncchip.ft-syncchip--attention {
+  background: var(--bad-soft);
+  color: var(--bad);
+}
+
+/* ---------------------------------------------------------------------------------------------
+   Board, stepper and other screen hooks: the same pixel frames.
+   --------------------------------------------------------------------------------------------- */
+
+[data-look="citypop"] .ft-board__col {
+  border-radius: 0;
+  background: var(--surface-2);
+  box-shadow: inset 0 0 0 2px var(--line-strong);
+}
+
+[data-look="citypop"] .ft-boardcard {
+  border-radius: 0;
+  border: 2px solid var(--ink);
+  box-shadow: 3px 3px 0 var(--ink);
+}
+
+[data-look="citypop"] .ft-boardcard.ft-boardcard--selected {
+  box-shadow: inset 6px 0 0 var(--accent), 3px 3px 0 var(--ink);
+}
+
+[data-look="citypop"] .ft-stepper__step--current {
+  font-weight: 700;
+}
+
+[data-look="citypop"] .ft-orgnode,
+[data-look="citypop"] .ft-seat,
+[data-look="citypop"] .ft-scenario,
+[data-look="citypop"] .ft-cliff,
+[data-look="citypop"] .ft-datetile {
+  border-radius: 0;
+}
+
+[data-look="citypop"] .ft-seat__num,
+[data-look="citypop"] .ft-empno {
+  font-family: var(--font-display);
+}
+
+[data-look="citypop"] .ft-scenario.ft-scenario--on {
+  box-shadow: inset 0 0 0 2px var(--accent), 3px 3px 0 var(--ink);
+}
+
+/* ---------------------------------------------------------------------------------------------
+   Charts: square bars, a cream tooltip box in an ink frame.
+   --------------------------------------------------------------------------------------------- */
+
+[data-look="citypop"] .ft-chart__bar,
+[data-look="citypop"] .ft-chart__track {
+  border-radius: 0;
+}
+
+[data-look="citypop"] .ft-chart__tip {
+  background: var(--surface);
+  color: var(--ink);
+  border: 2px solid var(--ink);
+  border-radius: 0;
+  box-shadow: 3px 3px 0 var(--ink);
+}
+
+/* Privacy: the kit's blur stays (it hides the value); a pixel mask on the text runs over it. */
+[data-look="citypop"] .ft-private.ft-private--on {
+  background: repeating-linear-gradient(90deg, var(--surface-3) 0 4px, transparent 4px 8px);
+}
+
+/* ---------------------------------------------------------------------------------------------
+   Display menu cards (drawn in this look while it is active).
+   --------------------------------------------------------------------------------------------- */
+
+[data-look="citypop"] .ft-lookcard {
+  background: var(--surface);
+  border: 2px solid var(--ink);
+  border-radius: 0;
+  box-shadow: 3px 3px 0 var(--ink);
+}
+
+[data-look="citypop"] .ft-lookcard:hover {
+  background: var(--surface-2);
+}
+
+[data-look="citypop"] .ft-lookcard.ft-lookcard--on {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent), 3px 3px 0 4px var(--ink);
+}
+
+[data-look="citypop"] .ft-lookcard__check {
+  color: var(--accent);
+}
+
+[data-look="citypop"] .ft-lookcard__name {
+  font-family: var(--font-display);
+}
+
+.ft-lookpreview[data-look="citypop"] {
+  border-bottom: 2px solid var(--ink);
+}
+
+/* ---------------------------------------------------------------------------------------------
+   Decor (citypop/decor.tsx): the skyline banner and the arcade headcount. Static; nothing moves.
+   --------------------------------------------------------------------------------------------- */
+
+[data-look="citypop"] .ft-cp-skyline {
+  display: block;
+  height: 64px;
+  margin-bottom: 1rem;
+  overflow: hidden;
+  border: 3px solid var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
+  background: var(--cp-sky-1);
+}
+
+[data-look="citypop"] .ft-cp-skyline svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+}
+
+/* The score over a row of seats, so 20 seats and a few starting fit the rail on one line. */
+[data-look="citypop"] .ft-cp-hc {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+[data-look="citypop"] .ft-cp-hc__score {
+  flex: none;
+  padding: 3px 6px 2px;
+  background: var(--ink);
+  color: var(--cp-sky-4);
+  font-family: var(--font-display);
+  font-size: 15px;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  box-shadow: 2px 2px 0 var(--accent);
+}
+
+[data-look="citypop"] .ft-cp-hc__seats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  min-width: 0;
+}
+
+[data-look="citypop"] .ft-cp-hc__seat {
+  width: 6px;
+  height: 10px;
+  background: var(--surface-2);
+  box-shadow: inset 0 0 0 1px var(--line-strong);
+}
+
+[data-look="citypop"] .ft-cp-hc__seat--on {
+  background: var(--accent);
+  box-shadow: none;
+}
+
+[data-look="citypop"] .ft-cp-hc__seat--incoming {
+  background: repeating-linear-gradient(180deg, var(--accent) 0 2px, var(--accent-soft) 2px 4px);
+  box-shadow: none;
+}
