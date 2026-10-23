@@ -552,28 +552,34 @@ export function SegmentBar({
   )
 }
 
-/** Tiny trend line for stat tiles; last point emphasized. */
+/** Tiny trend line for stat tiles; last point emphasized. `reference` draws a dashed line at a value (a threshold). */
 export function Sparkline({
   values,
   width = 96,
   height = 28,
   ariaLabel,
+  reference,
 }: {
   values: number[]
   width?: number
   height?: number
   ariaLabel: string
+  reference?: number
 }) {
   if (values.length < 2) return null
-  const max = Math.max(...values)
-  const min = Math.min(...values)
+  const max = Math.max(...values, reference ?? -Infinity)
+  const min = Math.min(...values, reference ?? Infinity)
   const range = max - min || 1
   const step = (width - 8) / (values.length - 1)
-  const pts = values.map((v, i) => [4 + i * step, 4 + (height - 8) * (1 - (v - min) / range)] as const)
+  const y = (v: number) => 4 + (height - 8) * (1 - (v - min) / range)
+  const pts = values.map((v, i) => [4 + i * step, y(v)] as const)
   const d = pts.map(([px, py], i) => `${i ? 'L' : 'M'}${px.toFixed(1)},${py.toFixed(1)}`).join(' ')
   const [lx, ly] = pts[pts.length - 1]
   return (
     <svg width={width} height={height} role="img" aria-label={ariaLabel} className="ft-chart ft-chart--spark block">
+      {reference != null && (
+        <line x1={4} x2={width - 4} y1={y(reference)} y2={y(reference)} stroke="var(--ink-3)" strokeWidth={1} strokeDasharray="3 3" />
+      )}
       <path d={`${d} L${lx},${height} L4,${height} Z`} fill="var(--accent)" opacity={0.1} />
       <path d={d} fill="none" stroke="var(--ink-3)" strokeWidth={1.6} strokeLinejoin="round" />
       <circle cx={lx} cy={ly} r={3.5} fill="var(--accent)" stroke="var(--surface)" strokeWidth={2} />

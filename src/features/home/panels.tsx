@@ -1,4 +1,5 @@
 // Home blocks owned by this feature: Headcount vs plan, This week, First hire kit.
+import type { ReactNode } from 'react'
 import { useMemo, useState } from 'react'
 import { links } from '@/app/router'
 import { useViewer } from '@/app/useViewer'
@@ -140,14 +141,25 @@ function dayLabel(d: ISODate, date: ISODate): string {
   return dayText(d)
 }
 
-export function ThisWeekPanel({ viewer, title = 'This week', showWhosOut = true }: { viewer: Viewer; title?: string; showWhosOut?: boolean }) {
+export function ThisWeekPanel({
+  viewer,
+  title = 'This week',
+  showWhosOut = true,
+  actions,
+}: {
+  viewer: Viewer
+  title?: string
+  showWhosOut?: boolean
+  /** The admin Home folds this panel and passes its Hide button here. */
+  actions?: ReactNode
+}) {
   const db = useDB((s) => s.db)
   const date = today()
   const view = useMemo(() => thisWeek(db, viewer, date), [db, viewer, date])
   const end = view.days.length ? view.days[view.days.length - 1].date : date
   const busy = view.days.filter((d) => d.events.length)
   return (
-    <Panel title={title} subtitle={`${dayText(date)} to ${dayText(end)}`} icon="calendar">
+    <Panel title={title} subtitle={`${dayText(date)} to ${dayText(end)}`} icon="calendar" actions={actions}>
       {showWhosOut && (
         <div className="mb-3">
           <h3 className="eyebrow mb-1">Who's out</h3>

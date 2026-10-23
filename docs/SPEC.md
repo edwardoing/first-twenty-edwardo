@@ -48,16 +48,23 @@ CHANGES TO THE SKETCH: stages become New, Intro call, Technical, Onsite, Offer, 
 
 ### Home (home)
 
-Tonight's HR work and where the company stands, on one screen. Inbox items carry inline actions, so most sessions never leave Home. Content changes with the Viewing as mode.
+Where the company stands and what needs you, on one screen. Content changes with the Viewing as mode. The Admin Home (past the first hire) is built for a finance-minded founder or COO with two minutes between calls: it answers three questions above the fold (am I legally exposed, what are people costing me, what do I need to approve), numbers before words, and every summary drills down to its detail.
 
+Admin, top to bottom:
+- Page head: the date as the title ('Thursday, Oct 22') and a one-line answer computed from the data ('3 legal items overdue. 5 decisions waiting on you.')
+- KPI strip, four tiles that are buttons and jump to their detail: Legal exposure (a status word and marker: 'N overdue' red, 'Due soon' amber, 'All clear' green; the count; how many more are due in the next 14 days), People cost / month (fully loaded run-rate; '$318K once Lucas, Mei and Daniel start. Contractors $15.7K.'), Headcount ('14 / plan 18 by Dec 31', a sparkline of headcount history with the next legal threshold dashed, '1 hire to 15, the next legal threshold'), Runway (months at today's burn; 'N months if the hiring plan lands')
+- Two working columns (one on narrow screens). Legal exposure: statutory items only, overdue first (red marker) then due in the next 14 days (amber), each 'Person · plain-English task (form code)' with 'N days late' and one inline undoable action, a link to the full compliance list and 'Not legal advice'. Approvals: one queue of the decisions that belong to Admin (offer approvals, job requests, pay runs, board consent for grants, contractor classification, time off) with the money or date impact on the meta line and one-click action, and a link to the items waiting on others. Operational items (an unreturned laptop) stay out of the legal list; they are in the full inbox.
+- Detail: People cost and runway (today, with hires and offers, at plan as bars; runway today and at plan), Headcount vs plan step chart since founding, Hiring (a sortable table: role, applied, onsite, days open, status), Joining and leaving (a table: person, change, date, checklist progress, status)
+- Folded at the bottom: the full action inbox (Overdue, This week, Coming up; filter Waiting on you or Waiting on them) and This week (starts, interviews, who's out, cliffs and anniversaries, deadlines). The next threshold explainer lives in Compliance > Milestones.
+
+Hiring manager and the First hire kit (headcount 1) keep the Tonight header and inbox layout:
 - Tonight header (item count and time estimate)
 - Action inbox (Overdue, This week, Coming up; filter Waiting on you or Waiting on them)
-- Next threshold card with headcount ruler and projected date
+- Next threshold card with headcount ruler and projected date (First hire kit layout)
 - Headcount vs plan step chart since founding
 - This week (starts, interviews, who's out, cliffs and anniversaries, deadlines)
 - Hiring pulse (open jobs, mini funnels, offers out)
-- Onboarding and offboarding in flight
-- People cost and runway (Admin only, blurs with B)
+- Onboarding and offboarding in flight (pre-start first hire)
 - First hire kit (replaces the cost, onboarding and hiring blocks while headcount is 1)
 
 ### Hiring (hiring)
@@ -259,7 +266,9 @@ The few controls that must be one tap away everywhere.
 
 ## Home dashboard
 
-- Tonight header: 'Friday, Oct 9: 13 things, about 25 minutes'. The time estimate is summed from item types. The backup chip, Viewing as switch and blur toggle sit beside it.
+The Admin layout past the first hire is described under Home (home) above: KPI strip, Legal exposure and Approvals, then the detail, with the inbox and This week folded. The sample lines below describe the blocks it is built from.
+
+- Tonight header (Hiring manager and First hire kit): 'Friday, Oct 9: 13 things, about 25 minutes'. The time estimate is summed from item types. The backup chip, Viewing as switch and blur toggle sit beside it.
 - Action inbox, in the main column. Sample for Oct 9, 2026, Overdue (red, statutory): 'DE 34 for Jasmine Torres was due Sun Oct 4: confirm your PEO filed it' [Mark filed]; '12 people are at HQ on hybrid days, so a workplace violence prevention plan likely applies: none on file' [Create tasks]. Overdue (amber): 'Ben Carter's laptop is not back (left Sep 18)' [Copy reminder]. This week: 'Lena's CFRA designation notice due Tue Oct 13' [Mark sent]; 'Danielle Brooks offer expires Wed Oct 14' [Copy nudge] [Extend 3 days]; 'Jasmine's security training due Wed Oct 14' [Mark done]; 'Senior full-stack: 3 candidates past SLA in Intro call' [Sweep]; 'Scorecard owed: your technical interview with Diego Morales (Thu Oct 8)' [Fill]; 'Marcus requested Nov 24-25 off' [Approve]; '2 grants awaiting board consent (Jasmine, Ravi)' [Copy consent table]; 'Kevin O'Brien, CPA (contractor) is likely an employee under AB5' [Convert to employee]; 'Ravi starts Mon Oct 26: laptop not ordered' [Done]; 'Handbook v2: 3 acknowledgements missing' [Copy reminder].
 - Next threshold card with the headcount ruler: one dot per employee, hollow dots for offers, ticks at 5, 10, 15 and 20. Copy: 'At 15 employees, CA requires a pay range on every job post (yours already have them) and paid organ and bone marrow donor leave. Federal Title VII, ADA, GINA and PWFA follow once you have 15 for 20 calendar weeks in one year. You have 13. With Ravi (Oct 26) and Danielle if she accepts (Nov 9), you reach 15 on Nov 9, and federal coverage would start around late May 2027.' Expanders: How we counted, and What to do.
 - Headcount vs plan: '13 employees, 3 contractors, 2 advisors. Plan: 16 by Dec 31, 18 by Mar 31, 20 by Jun 30, 2027.' A step chart of W-2 headcount since Feb 3, 2025, solid for actual and dotted for plan. Markers: pre-seed (Jun 2025), seed (Mar 2026), 'Crossed 5 on Sep 2, 2025 when Grace joined', 'Crossed 10 on May 4, 2026 when Marcus joined', and one step down on Sep 18, 2026 (Ben). Faint lines at 5, 15 and 20.

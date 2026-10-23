@@ -72,7 +72,7 @@ from the others.
 
 | Area | Highlights |
 |---|---|
-| Home | "Tonight" header with a time estimate, an action inbox computed from your data (one big action per row, Undo, snooze; legal deadlines in red and never snoozed past due), next legal threshold, headcount vs plan, this week, hiring pulse, people cost. A First hire kit while it is just you. |
+| Home | Three answers above the fold for the admin: legal exposure, people cost and runway, and what needs your approval, as four KPI tiles and two working lists with one-click, undoable actions (legal deadlines in red, never snoozed past due). Below: cost and runway bars, headcount vs plan, hiring and joining and leaving tables; the full action inbox and this week fold away. A First hire kit while it is just you. |
 | Hiring | Jobs with planned rows from the headcount plan, pipeline board or list with keyboard moves (A, R, S, J) and Sweep mode, quick add by pasting, required next steps and SLAs, interview scheduling with .ics files and dual time zones, 4-point scorecards hidden until you submit yours, offer builder with band meter and exempt check, offer letter and wage notice, background checks with the Fair Chance Act steps, one-click Hire with a threshold preview. |
 | People | Directory, org chart, the First twenty wall, profiles (job and pay history, equity, time off, checklists, emergency contacts), California-aware onboarding, offboarding with final pay deadlines, leave cases, contractors with the AB5 check. |
 | Comp and plan | Headcount plan by quarter, levels and bands, comp table with compa-ratio, option pool and board consent queue, 409A history, fully loaded run-rate and runway. |
