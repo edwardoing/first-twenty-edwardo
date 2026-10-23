@@ -25,6 +25,10 @@ import {
   DataTable,
   EmptyState,
   Icon,
+  jumpTo,
+  KpiSub,
+  KpiTile,
+  KpiValue,
   Money,
   PageHeader,
   Panel,
@@ -57,14 +61,6 @@ const SECTION = {
   inbox: 'home-inbox',
 } as const
 
-/** Scrolls a section into view and puts focus on it, so a KPI tile works the same by keyboard and pointer. */
-function jumpTo(id: string) {
-  const el = document.getElementById(id)
-  if (!el) return
-  el.scrollIntoView({ block: 'start' })
-  el.focus({ preventScroll: true })
-}
-
 /** A section a KPI tile can jump to: focusable by script only (tabIndex -1), so Tab order is unchanged. */
 function Target({ id, children, className }: { id: string; children: ReactNode; className?: string }) {
   return (
@@ -85,32 +81,6 @@ function Meta({ parts }: { parts: MetaPart[] }) {
       ))}
     </>
   )
-}
-
-// ---------------------------------------------------------------------------------------------
-// KPI strip
-// ---------------------------------------------------------------------------------------------
-
-function KpiTile({ label, target, jumpLabel, children }: { label: string; target: string; jumpLabel: string; children: ReactNode }) {
-  return (
-    <button
-      type="button"
-      onClick={() => jumpTo(target)}
-      className="ft-stat flex min-w-0 flex-col items-start rounded-sm border border-line bg-surface px-4 py-3.5 text-left transition-colors hover:border-line-strong"
-    >
-      <span className="ft-stat__label text-[13px] font-semibold text-ink-3">{label}</span>
-      {children}
-      <span className="sr-only">. {jumpLabel}</span>
-    </button>
-  )
-}
-
-function KpiValue({ children }: { children: ReactNode }) {
-  return <span className="ft-stat__value num mt-1.5 font-display text-[28px] leading-none font-bold text-ink">{children}</span>
-}
-
-function KpiSub({ children }: { children: ReactNode }) {
-  return <span className="ft-stat__sub mt-1.5 text-[13px] text-ink-2">{children}</span>
 }
 
 // ---------------------------------------------------------------------------------------------
