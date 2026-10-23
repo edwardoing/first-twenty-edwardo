@@ -9,6 +9,7 @@ First Twenty ships several complete visual styles ("looks"). The user can switch
 | `web90s` | 1990s web | A 1997 company intranet built in Netscape Composer: gray beveled chrome, Times New Roman, blue underlined links, bordered tables, a visitor counter, "best viewed at 800x600". Period-true, still easy to use. | Fixed palette |
 | `comic` | Comic book | A Silver Age print comic: newsprint, thick black ink outlines, Ben-Day halftone dots, CMYK primaries, caption boxes, speech-bubble notices, hand-lettered headlines. | Fixed palette |
 | `trading` | Trading desk | A professional trading terminal for running the company's people like a portfolio: near-black workspace, panels docked as square bordered windows with amber title bars, IBM Plex Mono figures in order-book tables, cyan for links and selection, green and red only for good and bad (always with a word), a ticker tape of real figures, a headcount quote with a sparkline, a quick-links bar in the function-key style (keycaps only for keys that work, such as Search; no F numbers, which the browser owns). Replaced the green-bar ledger look on 2026-10-10. | Fixed palette (dark) |
+| `citypop` | City pop | A 16-bit city pop game at golden hour: peach paper and plum ink, pixel frames (square corners, 2-3px ink borders, hard offset shadows with no blur), Pixelify Sans for headings and big figures only (Geist for reading, IBM Plex Mono for ids), a pixel skyline banner with a striped sun and lit windows, and an arcade score headcount in the rail. Magenta for action and place, violet for focus. Added 2026-10-23. | Fixed palette |
 
 ## Why this exists
 
@@ -26,7 +27,7 @@ evenly spaced identical cards used where a table or list reads better.
 
 ### Selection
 
-- `usePrefs().look`: `'sleek' | 'web90s' | 'comic' | 'trading'`, default `'sleek'` (`src/store/prefs.ts`).
+- `usePrefs().look`: `'sleek' | 'web90s' | 'comic' | 'trading' | 'citypop'`, default `'sleek'` (`src/store/prefs.ts`).
 - Renamed looks: a saved id in `RENAMED_LOOKS` (`src/themes/ids.ts`) loads as its new id (`savedLook()`), so a
   device that had the old green-bar `'ledger'` opens in `'trading'`. `index.html`'s pre-paint script keeps the same
   map so the first paint matches; `src/themes/looks.test.ts` checks both.
@@ -42,7 +43,7 @@ evenly spaced identical cards used where a table or list reads better.
 
 - `src/styles.css`: Tailwind setup, container breakpoints, resets, the `@theme inline` mapping and the
   imports of every look stylesheet. No look-specific values here.
-- `src/themes/sleek.css`, `web90s.css`, `comic.css`, `trading.css`: one file per look, **every selector
+- `src/themes/sleek.css`, `web90s.css`, `comic.css`, `trading.css`, `citypop.css`: one file per look, **every selector
   scoped under `[data-look="<id>"]`** (not `:root`, so preview cards can carry a look). `sleek.css` also
   defines its tokens on `:where(:root)` (zero specificity) as the default when no attribute is set, and its dark values under
   `@media (prefers-color-scheme: dark) { [data-look="sleek"]:not([data-theme="light"]) { ... } }` and
@@ -131,7 +132,7 @@ What the engine does today (built 2026-10-10), so a look can be written in its o
   (`text-[14.5px]`), so `--font-size-base` only moves inherited text.
 - **Fonts.** `src/themes/fonts.css` loads Latin woff2 only: "Archivo Variable" (sleek: weight 100-900 and width
   62-125% in one file, shipped in `src/themes/sleek/fonts/` with its OFL license), "Geist Variable" 100-900
-  (trading's reading text; the Geist Mono face went with the old sleek), "Bangers" 400, "Comic Neue" 400 and 700, "IBM Plex Mono" 400 and 600. The 1990s
+  (trading's and City pop's reading text; the Geist Mono face went with the old sleek), "Bangers" 400, "Comic Neue" 400 and 700, "IBM Plex Mono" 400 and 600, "Pixelify Sans" 400 and 700 (City pop's headings and big figures, shipped in `src/themes/citypop/fonts/` with its OFL license). The 1990s
   look uses system fonts (Times New Roman, Arial, Courier New); sleek's key caps use the system mono (Cascadia
   Mono, Consolas). Need another weight? Add a face there; never import a package index.
 - **Light and dark.** Only sleek has dark tokens. A fixed-palette file must never mention `data-theme` or
@@ -363,6 +364,30 @@ What `src/themes/sleek.css` does beyond recoloring, so a screen change can be ch
 - **Dark** is designed, not inverted: warm charcoal paper `#141413`, `#3a3a37` row rules, near-white section
   rules, a mid ultramarine fill `#2766d2` (hue 218) with white words for the primary action, and a light tint of
   the same blue `#86b3ff` for the focus ring and checks.
+
+### City pop conventions
+
+What `src/themes/citypop.css` does beyond recoloring:
+
+- **Pixel frames.** Square corners everywhere (also through variant utilities, as in the 1990s look). Things that stand
+  up off the page (buttons, panels, stats, board cards, menus, dialogs, sheets, toasts, the skyline) get a 2-3px ink
+  frame and a hard offset ink shadow (2, 3, 4 or 6px, never a blur). Fields, badges, callouts and table rows lie flat.
+  A pressed button drops 2px onto its shadow.
+- **Type.** Pixelify Sans (`--font-display`) only for headings (page, panel, sheet and dialog titles) and big figures
+  (stat values, the headcount, employee and seat numbers, figure-style mini stats). Everything else is Geist; ids and
+  key caps are IBM Plex Mono.
+- **Color roles.** Magenta `--accent` is action and place: the primary button, links (2px underline), the current nav
+  item (a soft magenta tile with a 6px bar), the current tab (a 4px bar), chosen chips and segments. Violet `--focus`
+  is the focus ring only (ink on magenta or red fills). Status is a soft fill, a 2px frame in the tone's ink and the word.
+- **Chart colors.** `#c2255c #1098ad #6741d9 #d9480f #1971c2 #2b8a3e` in that order, validated on `--surface` and
+  `--paper` (all checks pass). The deeper teal `#0b7285` fails the chroma floor, and blue next to violet fails the
+  normal-vision floor, so the teal is lighter and blue sits after orange.
+- **Decor** (`citypop/decor.tsx`, styled at the end of the stylesheet): the Banner is an inline SVG skyline on a 4px
+  grid (`shape-rendering: crispEdges`): five flat sky bands, a striped sun over a low bay in the middle of the strip (so
+  a phone, which sees the middle, sees it), two rows of plum towers from a fixed seed and lit windows. It is 64px tall,
+  `preserveAspectRatio="xMidYMax slice"` so it crops instead of stretching, aria-hidden and static (no motion to
+  reduce). Headcount is an arcade score box ("HC 014") and one pixel per seat out of 20 (striped for people starting).
+- **Page texture.** One 2px `#f8e3d4` pixel every 8px on the paper (`--ink-3` keeps 6.3:1 on it).
 
 ## Rules every look keeps
 
