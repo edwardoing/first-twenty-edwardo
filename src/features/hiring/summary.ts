@@ -8,6 +8,7 @@ import { links } from '@/app/router'
 import { canSeePipeline } from '@/domain/access'
 import type { InboxAction, InboxItem } from '@/domain/inbox'
 import { peopleCostSummary, type PeopleCostSummary, runway } from '@/domain/pay'
+import { plannedHiresBy } from '@/domain/plan'
 import type { DB, ID, Job, Viewer } from '@/domain/types'
 import { addDays, type ISODate, pacificDateOf } from '@/lib/dates'
 import { approvalsQueue, type ApprovalRow, headcountTile, type HeadcountTile, hiringRows, type HiringRow } from '../home/dashboard'
@@ -32,7 +33,7 @@ export type RolesVsPlan = {
   /** The plan at the end of the quarter, when there is one. */
   plan: { value: number; date: ISODate } | null
   current: number
-  /** Hires still needed to reach the plan, never below 0; null without a plan. */
+  /** Plan lines still to hire by the plan date (known starts and departures are not hires); null without a plan. */
   toPlan: number | null
   /** Planned hires with no open role to cover them; null without a plan. */
   uncovered: number | null
@@ -89,9 +90,9 @@ export function stuckSummary(rows: HiringRow[]): StuckSummary {
   }
 }
 
-/** Open roles against the headcount plan. */
-export function rolesVsPlan(rows: HiringRow[], head: HeadcountTile): RolesVsPlan {
-  const toPlan = head.plan ? Math.max(0, head.plan.value - head.current) : null
+/** Open roles against the headcount plan. `hires` is plannedHiresBy at the plan date, null without a plan. */
+export function rolesVsPlan(rows: HiringRow[], head: HeadcountTile, hires: number | null): RolesVsPlan {
+  const toPlan = head.plan ? (hires ?? 0) : null
   return {
     open: rows.length,
     plan: head.plan,
@@ -139,7 +140,7 @@ export function hiringSummary(db: DB, items: InboxItem[], viewer: Viewer, date: 
       kind: 'admin',
       offers,
       stuck: stuckSummary(rows),
-      roles: rolesVsPlan(rows, head),
+      roles: rolesVsPlan(rows, head, head.plan ? plannedHiresBy(db, date, head.plan.date) : null),
       cost: costVsRunway(db, date, cost, head, offers.count),
     }
   }
@@ -150,7 +151,7 @@ export function hiringSummary(db: DB, items: InboxItem[], viewer: Viewer, date: 
   return {
     kind: 'manager',
     stuck: stuckSummary(rows),
-    roles: rolesVsPlan(rows, { ...head, plan: null }),
+    roles: rolesVsPlan(rows, { ...head, plan: null }, null),
     interviews: interviewsThisWeek(db, viewer, date),
   }
 }

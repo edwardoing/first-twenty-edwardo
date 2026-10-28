@@ -57,25 +57,28 @@ function RolesTile({ roles, mine }: { roles: RolesVsPlan; mine: boolean }) {
       <KpiSub>
         {roles.plan && roles.toPlan != null
           ? roles.toPlan === 0
-            ? `At plan with ${roles.current} people`
+            ? 'Every planned hire is made'
             : roles.uncovered
               ? `${plural(roles.toPlan, 'hire')} to plan, ${roles.uncovered} without an open role`
               : `${plural(roles.toPlan, 'hire')} to plan, every one has a role`
-          : roles.open
-            ? 'Jobs you hire for'
-            : 'No open roles'}
+          : !mine
+            ? 'No headcount plan yet'
+            : roles.open
+              ? 'Jobs you hire for'
+              : 'No open roles'}
       </KpiSub>
     </KpiTile>
   )
 }
 
 function CostTile({ cost }: { cost: CostVsRunway }) {
+  // runwayMonthsLabel capitalizes for a figure on its own; here it sits mid-sentence ("Runway not shrinking").
   const runway =
     cost.runwayNow == null
       ? null
       : {
-          now: runwayMonthsLabel(cost.runwayNow),
-          after: cost.runwayWithOffers == null ? null : runwayMonthsLabel(cost.runwayWithOffers),
+          now: runwayMonthsLabel(cost.runwayNow).toLowerCase(),
+          after: cost.runwayWithOffers == null ? null : runwayMonthsLabel(cost.runwayWithOffers).toLowerCase(),
         }
   return (
     <KpiTile label="Hire cost vs runway" target={JOBS_SECTION} jumpLabel={JUMP}>

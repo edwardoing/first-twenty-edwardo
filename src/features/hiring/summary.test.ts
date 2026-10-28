@@ -5,6 +5,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { buildSampleDB } from '@/data/seed'
 import { type InboxItem, inboxItems } from '@/domain/inbox'
 import { peopleCostSummary } from '@/domain/pay'
+import { plannedHiresBy } from '@/domain/plan'
 import type { DB, Viewer } from '@/domain/types'
 import { setClockOverride } from '@/lib/dates'
 import { headcountTile, hiringRows } from '../home/dashboard'
@@ -93,16 +94,24 @@ describe('stuck candidates', () => {
 
 describe('open roles vs plan', () => {
   it('compares open roles with the hires still needed to reach the plan', () => {
-    const r = rolesVsPlan(hiringRows(db, FRI), headcountTile(db, FRI))
-    expect(r).toMatchObject({ open: 4, current: 14, toPlan: 4, uncovered: 0 })
+    const r = rolesVsPlan(hiringRows(db, FRI), headcountTile(db, FRI), plannedHiresBy(db, FRI, '2026-12-31'))
+    // Plan 18 less 14 today is 4, but one of those has already accepted: 3 plan lines are still to hire.
+    expect(r).toMatchObject({ open: 4, current: 14, toPlan: 3, uncovered: 0 })
     expect(r.plan).toEqual({ value: 18, date: '2026-12-31' })
   })
 
   it('reports planned hires with no open role, and nothing without a plan', () => {
     const head = headcountTile(db, FRI)
-    expect(rolesVsPlan([], head).uncovered).toBe(4)
-    const none = rolesVsPlan([], { ...head, plan: null })
+    expect(rolesVsPlan([], head, 3).uncovered).toBe(3)
+    const none = rolesVsPlan([], { ...head, plan: null }, null)
     expect(none).toMatchObject({ toPlan: null, uncovered: null })
+  })
+
+  it('does not count a hire who already accepted as a hire to make', () => {
+    // No plan lines: the projected 15 is the accepted offer starting, so nothing is left to hire.
+    const bare = { ...db, plan: [] }
+    const s = hiringSummary(bare, items, admin, FRI)
+    expect(s?.kind === 'admin' && s.roles).toMatchObject({ plan: { value: 15 }, current: 14, toPlan: 0, uncovered: 0 })
   })
 })
 
