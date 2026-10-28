@@ -21,8 +21,8 @@ export type OffersWaiting = {
   monthly: number
   /** Jobs those offers are for, so the Jobs list can put them first. */
   jobIds: ID[]
-  /** The approvals queue rows, one per offer, each with its Approve action. */
-  rows: ApprovalRow[]
+  /** The approvals queue rows, one per offer, each with its Approve action and the job it is for. */
+  rows: (ApprovalRow & { jobId: ID | null })[]
 }
 
 export type StuckSummary = { candidates: number; roles: number }
@@ -71,10 +71,13 @@ export type HiringSummary =
 
 /** Offers waiting on the admin, with what they add to the monthly bill. Money is fully loaded, from peopleCostSummary. */
 export function offersWaiting(db: DB, items: InboxItem[], date: ISODate, cost: PeopleCostSummary = peopleCostSummary(db, date)): OffersWaiting {
-  const rows = approvalsQueue(db, items, date, cost).filter((r) => r.item.kind === 'offer_approval')
+  // The job comes from the offer record, falling back to the item's ref, as Home's approvals queue does.
+  const rows = approvalsQueue(db, items, date, cost)
+    .filter((r) => r.item.kind === 'offer_approval')
+    .map((r) => ({ ...r, jobId: db.offers.find((o) => o.id === r.item.refs.offerId)?.jobId ?? r.item.refs.jobId ?? null }))
   const offerIds = new Set(rows.map((r) => r.item.refs.offerId))
   const monthly = cost.withOffers.lines.filter((l) => l.offerId && offerIds.has(l.offerId)).reduce((s, l) => s + l.monthly, 0)
-  const jobIds = [...new Set(rows.map((r) => r.item.refs.jobId).filter((id): id is ID => !!id))]
+  const jobIds = [...new Set(rows.map((r) => r.jobId).filter((id): id is ID => !!id))]
   return { count: rows.length, monthly, jobIds, rows }
 }
 
@@ -190,7 +193,7 @@ export type JobAction = { label: string; href: string } | { label: string; actio
 /** The one inline action: approve the offer, sweep the stuck, or open the job. */
 export function jobAction(row: JobRowInput, offers: OffersWaiting | null): JobAction {
   const offerJobIds = new Set(offers?.jobIds ?? [])
-  const waiting = attentionRank(row, offerJobIds) === 0 ? offers?.rows.find((r) => r.item.refs.jobId === row.job.id) : undefined
+  const waiting = attentionRank(row, offerJobIds) === 0 ? offers?.rows.find((r) => r.jobId === row.job.id) : undefined
   if (waiting) return { label: waiting.item.primary.label, action: waiting.item.primary }
   if (row.stuck > 0 && row.access === 'full') return { label: 'Sweep', href: links.job(row.job.id, 'sweep') }
   return { label: 'Open', href: links.job(row.job.id) }
