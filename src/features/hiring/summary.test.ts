@@ -61,6 +61,16 @@ describe('offers waiting on you', () => {
     expect(w.monthly).toBeGreaterThan(0)
   })
 
+  it('finds the job from the offer when the approval carries no job ref', () => {
+    const bare = items.map((i) => (i.kind === 'offer_approval' ? { ...i, refs: { ...i.refs, jobId: undefined } } : i))
+    const w = offersWaiting(db, bare, FRI)
+    expect(w.jobIds).toEqual(['j-staff-ml'])
+    const staff = { job: { id: 'j-staff-ml', status: 'open' as const }, stuck: 0, access: 'full' as const }
+    expect(attentionRank(staff, new Set(w.jobIds))).toBe(0)
+    expect(jobStatusWord(staff, new Set(w.jobIds)).text).toBe('Offer waiting')
+    expect(jobAction(staff, w).label).toBe('Approve')
+  })
+
   it('is empty when nothing waits', () => {
     expect(offersWaiting(db, [], FRI)).toMatchObject({
       count: 0,
